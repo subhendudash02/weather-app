@@ -1,5 +1,5 @@
 import {MutableRefObject, useRef, useState, useEffect} from 'react';
-import {parse, stringify, toJSON, fromJSON} from 'flatted';
+import {parse, stringify} from 'flatted';
 import url from "./utils/weatherapi";
 import { WeatherData, ForecastData } from './utils/interfaces';
 
@@ -61,23 +61,10 @@ function App() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const setPreferences = (e:any) => {
-        e.preventDefault();
-        localStorage.setItem('tempUnit', stringify(tempUnit));
-        localStorage.setItem('windSpeedUnit', stringify(windSpeedUnit));
-        handleClose();
-    }
-
-    const getWeather = async (e:any) => {
-        e.preventDefault();
-
-        setForecastData([]);
-
-        console.log(parse(localStorage.getItem('tempUnit') || '{}').value);
-
-        // Current Weather Info
-        await url.get<any>(`/current.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&aqi=no`)
+    const callWeatherAPI = async (arg: any) => {
+        await url.get<any>(`/forecast.json?key=${process.env.WEATHER_API_KEY}&q=${arg}&days=10&aqi=no&alerts=no`)
             .then(res => {
+                // Current Weather Info
                 setWeatherData({
                     name: res.data.location.name,
                     temp_celsius: res.data.current.temp_c,
@@ -87,11 +74,8 @@ function App() {
                     wind_mph: res.data.current.wind_kph,
                     comment: res.data.current.condition.text
                 })
-            });
-        
-        // Forecast Weather Info
-        await url.get<any>(`/forecast.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
-            .then(res => {
+
+                // Forecast Weather Info
                 const forecastArray = res.data.forecast.forecastday;
                 forecastArray.map((i: any) => {
                     setForecastData((prev) => (
@@ -107,6 +91,34 @@ function App() {
                     return null;
                 });
             })
+    }
+
+    const setPreferences = (e:any) => {
+        e.preventDefault();
+        localStorage.setItem('tempUnit', stringify(tempUnit));
+        localStorage.setItem('windSpeedUnit', stringify(windSpeedUnit));
+        handleClose();
+    }
+
+    const getLiveWeather = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                await callWeatherAPI(pos.coords.latitude + "," + pos.coords.longitude);
+            })
+        }
+        else {
+            alert("Geolocation is not supported in your browser!");
+        }
+    }
+
+    const getWeather = async (e:any) => {
+        e.preventDefault();
+
+        setForecastData([]);
+
+        console.log(parse(localStorage.getItem('tempUnit') || '{}'));
+
+        await callWeatherAPI(getData.current.value);
     }
 
   return (
@@ -143,6 +155,7 @@ function App() {
 
         <form onSubmit={getWeather}>
             <input type="text" name="city" placeholder="Enter a city" ref={getData} />
+            <input type="button" value="Fetch from my current location" onClick={getLiveWeather} />
         </form>
         
         {weather.name ? <p className="weather-data name">{weather.name}</p> : null}
