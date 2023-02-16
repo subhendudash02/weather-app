@@ -12,6 +12,14 @@ interface WeatherData {
     comment: string;
 }
 
+interface ForcastData {
+    day: Array<number>;
+    avg_temp_celsius: Array<number>;
+    avg_temp_fahrenheit: Array<number>;
+    humidity: Array<number>;
+    wind_kph: Array<number>;
+}
+
 function App() {
     const getData = useRef() as MutableRefObject<HTMLInputElement>;
     const [weather, getWeatherData] = useState<WeatherData>({
@@ -21,6 +29,14 @@ function App() {
         humidity: 0,
         wind_kph: 0,
         comment: "",
+    });
+
+    const [forcast, getForcastData] = useState<ForcastData>({
+        day: [],
+        avg_temp_celsius: [],
+        avg_temp_fahrenheit: [],
+        humidity: [],
+        wind_kph: [],
     });
 
     const getWeather = async (e:any) => {
@@ -38,6 +54,12 @@ function App() {
                     comment: res.data.current.condition.text
                 })
             });
+        
+        // Forecast Weather Info
+        await url.get<any>(`/forecast.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
+            .then(res => {
+                console.log(res.data.forecast.forecastday);
+            })
     }
 
   return (
