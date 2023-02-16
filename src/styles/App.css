@@ -1,0 +1,47 @@
+.App {
+    padding: 2%;
+}
+
+#main-heading {
+    text-align: center;
+}
+
+input {
+    width: 30%;
+    padding: 10px;
+    border-radius: 20px;
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 5%;
+}
+
+.weather-data {
+    text-align: center;
+    margin: 1.5%;
+}
+
+.name {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.temp {
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+.comment {
+    font-size: 1.5rem;
+}
+
+@media screen and (max-width: 768px) {
+    input {
+        width: 80%;
+        margin-bottom: 10%;
+    }
+
+    .weather-data {
+        margin: 5%;
+    }
+}
