@@ -40,7 +40,7 @@ function App() {
         e.preventDefault();
 
         // Current Weather Info
-        await url.get<any>(`/current.json?key=${process.env.REACT_APP_WEATHER_API_KEY}&q=${getData.current.value}&aqi=no`)
+        await url.get<any>(`/current.json?key=${process.env.WEATHER_API_KEY}&q=${getData.current.value}&aqi=no`)
             .then(res => {
                 getWeatherData({
                     name: res.data.location.name,
@@ -53,7 +53,7 @@ function App() {
             });
         
         // Forecast Weather Info
-        await url.get<any>(`/forecast.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
+        await url.get<any>(`/forecast.json?key=${process.env.WEATHER_API_KEY}&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
             .then(res => {
                 const forecastArray = res.data.forecast.forecastday;
                 forecastArray.map((i: any) => {
