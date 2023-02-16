@@ -40,7 +40,7 @@ function App() {
         e.preventDefault();
 
         // Current Weather Info
-        await url.get<any>(`/current.json?key=${process.env.WEATHER_API_KEY}&q=${getData.current.value}&aqi=no`)
+        await url.get<any>(`/current.json?key=${process.env.REACT_APP_WEATHER_API_KEY}&q=${getData.current.value}&aqi=no`)
             .then(res => {
                 getWeatherData({
                     name: res.data.location.name,
