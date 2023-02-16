@@ -35,6 +35,22 @@ input {
     font-size: 1.5rem;
 }
 
+/* Forecast */
+
+.forecast {
+    display: flex;
+    overflow-x: scroll;
+    width: 100%;
+}
+
+.forecast-box {
+    min-width: 20%;
+    margin: 1%;
+    padding: 2%;
+    border: 1px solid black;
+    text-align: center;
+}
+
 @media screen and (max-width: 768px) {
     input {
         width: 80%;
@@ -43,5 +59,9 @@ input {
 
     .weather-data {
         margin: 5%;
+    }
+
+    .forecast-box {
+        min-width: 50%;
     }
 }
