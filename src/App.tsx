@@ -12,7 +12,8 @@ interface WeatherData {
     comment: string;
 }
 
-interface ForcastData {
+interface ForecastData {
+    length: number;
     day: Array<number>;
     avg_temp_celsius: Array<number>;
     avg_temp_fahrenheit: Array<number>;
@@ -31,7 +32,8 @@ function App() {
         comment: "",
     });
 
-    const [forcast, getForcastData] = useState<ForcastData>({
+    const [forecast, getForecastData] = useState<ForecastData>({
+        length: 0,
         day: [],
         avg_temp_celsius: [],
         avg_temp_fahrenheit: [],
@@ -58,7 +60,15 @@ function App() {
         // Forecast Weather Info
         await url.get<any>(`/forecast.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
             .then(res => {
-                console.log(res.data.forecast.forecastday);
+                const forecastArray = res.data.forecast.forecastday;
+                getForecastData({
+                    length: forecastArray.length,
+                    day: forecastArray.map((day:any) => day.date),
+                    avg_temp_celsius: forecastArray.map((day:any) => day.avgtemp_c),
+                    avg_temp_fahrenheit: forecastArray.map((day:any) => day.avgtemp_f),
+                    humidity: forecastArray.map((day:any) => day.avghumidity),
+                    wind_kph: forecastArray.map((day:any) => day.maxwind_kph)
+                })
             })
     }
 
@@ -74,6 +84,10 @@ function App() {
         {weather.temp_celsius ? <p className="weather-data temp">{weather.temp_celsius}°C</p> : null}
         {weather.comment ? <p className="weather-data comment">{weather.comment}</p> : null}
         {weather.humidity && weather.wind_kph ? <p className="weather-data humidity">Humidity: {weather.humidity}% | Wind: {weather.wind_kph} kph</p> : null}
+
+        <div id="forecast">
+                        
+        </div>
     </div>
   );
 }
