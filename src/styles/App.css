@@ -6,7 +6,7 @@
     text-align: center;
 }
 
-input {
+input[type=text] {
     width: 30%;
     padding: 10px;
     border-radius: 20px;
@@ -17,6 +17,25 @@ input {
     background-color: #252144;
     color: #FFF;
     border: none;
+}
+
+input[type=submit] {
+    background-color: #5045A4;
+    color: #FFF;
+    padding: 2%;
+    border-radius: 20px;
+    border: none;
+    margin-top: 4%;
+}
+
+input[type=submit]:hover {
+    cursor: pointer;
+}
+
+select {
+    color: #000;
+    margin: 2%;
+    padding: 1%;
 }
 
 .weather-data {
@@ -52,10 +71,21 @@ input {
     padding: 2%;
     border: 1px solid black;
     text-align: center;
+    border-radius: 10px;
+}
+
+.icon {
+    display: inline-block;
+}
+
+#hum-and-air-disp {
+    display: 'flex';
+    align-items: 'center';
+    flex-wrap: 'wrap';
 }
 
 @media screen and (max-width: 768px) {
-    input {
+    input[type=text] {
         width: 80%;
         margin-bottom: 10%;
     }

@@ -1,69 +1,107 @@
-import {MutableRefObject, useRef, useState} from 'react';
+import {MutableRefObject, useRef, useState, useEffect} from 'react';
+import {parse, stringify, toJSON, fromJSON} from 'flatted';
 import url from "./utils/weatherapi";
+import { WeatherData, ForecastData } from './utils/interfaces';
+
+import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat';
+import PercentIcon from '@mui/icons-material/Percent';
+import AirIcon from '@mui/icons-material/Air';
+import SettingsSharpIcon from '@mui/icons-material/SettingsSharp';
+
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
 
 import "./styles/App.css";
 
-interface WeatherData {
-    name: string;
-    temp_celsius: number;
-    temp_fahrenheit: number;
-    humidity: number;
-    wind_kph: number;
-    comment: string;
-}
-
-interface ForecastData {
-    day: number;
-    avg_temp_celsius: number;
-    avg_temp_fahrenheit: number;
-    humidity: number;
-    wind_kph: number;
-}
-
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+const styleModal = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    backgroundColor: 'black',
+    color: 'white'
+};
+
 function App() {
+    useEffect(() => {
+        const tempUnit:any = localStorage.getItem('tempUnit');
+        const windSpeedUnit:any = localStorage.getItem('windSpeedUnit');
+        if (!tempUnit) {
+            localStorage.setItem('tempUnit', stringify("°F"))
+        }
+        if (!windSpeedUnit) {
+            localStorage.setItem('windSpeedUnit', stringify("mph"))
+        }
+    });
+
     const getData = useRef() as MutableRefObject<HTMLInputElement>;
-    const [weather, getWeatherData] = useState<WeatherData>({
+    const tempUnit = useRef() as MutableRefObject<HTMLSelectElement>;
+    const windSpeedUnit = useRef() as MutableRefObject<HTMLSelectElement>;
+
+    const [weather, setWeatherData] = useState<WeatherData>({
         name: "",
         temp_celsius: 0,
         temp_fahrenheit: 0,
         humidity: 0,
         wind_kph: 0,
+        wind_mph: 0,
         comment: "",
     });
 
-    const [forecast, getForecastData] = useState<ForecastData[]>([]);
+    const [forecast, setForecastData] = useState<ForecastData[]>([]);
 
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    const setPreferences = (e:any) => {
+        e.preventDefault();
+        localStorage.setItem('tempUnit', stringify(tempUnit));
+        localStorage.setItem('windSpeedUnit', stringify(windSpeedUnit));
+        handleClose();
+    }
 
     const getWeather = async (e:any) => {
         e.preventDefault();
 
+        setForecastData([]);
+
+        console.log(parse(localStorage.getItem('tempUnit') || '{}').value);
+
         // Current Weather Info
-        await url.get<any>(`/current.json?key=${process.env.WEATHER_API_KEY}&q=${getData.current.value}&aqi=no`)
+        await url.get<any>(`/current.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&aqi=no`)
             .then(res => {
-                getWeatherData({
+                setWeatherData({
                     name: res.data.location.name,
                     temp_celsius: res.data.current.temp_c,
                     temp_fahrenheit: res.data.current.temp_f,
                     humidity: res.data.current.humidity,
                     wind_kph: res.data.current.wind_kph,
+                    wind_mph: res.data.current.wind_kph,
                     comment: res.data.current.condition.text
                 })
             });
         
         // Forecast Weather Info
-        await url.get<any>(`/forecast.json?key=${process.env.WEATHER_API_KEY}&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
+        await url.get<any>(`/forecast.json?key=7f75fdc3787c48a29a574714231602&q=${getData.current.value}&days=10&aqi=no&alerts=no`)
             .then(res => {
                 const forecastArray = res.data.forecast.forecastday;
                 forecastArray.map((i: any) => {
-                    getForecastData((prev) => (
+                    setForecastData((prev) => (
                         [...prev, {
                             day: new Date(i.date).getDay(),
                             avg_temp_celsius: i.day.avgtemp_c,
                             avg_temp_fahrenheit: i.day.avgtemp_f,
                             humidity: i.day.avghumidity,
-                            wind_kph: i.day.maxwind_kph
+                            wind_kph: i.day.maxwind_kph,
+                            wind_mph: i.day.maxwind_mph
                         }]
                     ))
                     return null;
@@ -73,6 +111,34 @@ function App() {
 
   return (
     <div className="App">
+        <div id="settings">
+            <SettingsSharpIcon onClick={handleOpen} fontSize="large" />
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description">
+            <Box sx={styleModal}>
+                <h1>Settings</h1>
+                <form onSubmit={setPreferences}>
+                    <label htmlFor="temperature">Temperature Unit: </label>
+                    <select name="temperature" ref={tempUnit}>
+                        <option value="°F">°F</option>
+                        <option value="°C">°C</option>
+                    </select>
+                    <br />
+                    <label htmlFor="wind">Wind Speed Unit: </label>
+                    <select name="wind" ref={windSpeedUnit}>
+                        <option value="kph">kph</option>
+                        <option value="mph">mph</option>
+                    </select>
+                    <br />
+                    <input type="submit" value="Save Preferences" />
+                </form>
+            </Box>
+            </Modal>
+        </div>
+
         <h1 id="main-heading">Weather App</h1>
 
         <form onSubmit={getWeather}>
@@ -80,9 +146,13 @@ function App() {
         </form>
         
         {weather.name ? <p className="weather-data name">{weather.name}</p> : null}
-        {weather.temp_celsius ? <p className="weather-data temp">{weather.temp_celsius}°C</p> : null}
+        {weather.temp_celsius ? <p className="weather-data temp"><DeviceThermostatIcon className="socIcon" fontSize='large' color="error" />{weather.temp_celsius}°C</p> : null}
         {weather.comment ? <p className="weather-data comment">{weather.comment}</p> : null}
-        {weather.humidity && weather.wind_kph ? <p className="weather-data humidity">Humidity: {weather.humidity}% | Wind: {weather.wind_kph} kph</p> : null}
+        {weather.humidity && weather.wind_kph ?
+            <div id="hum-and-air-disp">
+                <p className="weather-data humidity"><PercentIcon /> {weather.humidity}% <AirIcon /> {weather.wind_kph} kph</p>
+            </div>
+        : null}
 
         {forecast ? 
         <div className="forecast">
@@ -90,8 +160,8 @@ function App() {
                 return (
                     <div className="forecast-box" key={j}>
                         <p>{days[i.day]}</p>
-                        <p>{i.avg_temp_celsius}°C</p>
-                        <p>H: {i.humidity}% | W: {i.wind_kph} kph</p>
+                        <p><DeviceThermostatIcon />{i.avg_temp_celsius}°C</p>
+                        <p><PercentIcon /> {i.humidity}% | <AirIcon /> {i.wind_kph} kph</p>
                     </div>        
                 )
             })}
