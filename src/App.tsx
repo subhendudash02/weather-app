@@ -28,7 +28,7 @@ function App() {
         if (!windSpeedUnit) {
             localStorage.setItem('windSpeedUnit', stringify("mph"))
         }
-    });
+    }, []);
 
     const getData = useRef() as MutableRefObject<HTMLInputElement>;
     const tempUnit = useRef() as MutableRefObject<HTMLSelectElement>;
@@ -80,6 +80,14 @@ function App() {
                     return null;
                 });
             })
+            .catch((err) => {
+                if (err.response.status === 1006) {
+                    alert(err);
+                }
+                else if (err.response.status === 1005) {
+                    alert("Invalid API Key");
+                }
+            })
     }
 
     const setPreferences = (e:any) => {
@@ -104,8 +112,6 @@ function App() {
         e.preventDefault();
 
         setForecastData([]);
-
-        console.log(parse(localStorage.getItem('tempUnit') || '{}'));
 
         await callWeatherAPI(getData.current.value);
     }
