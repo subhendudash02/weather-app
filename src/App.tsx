@@ -62,7 +62,7 @@ function App() {
     const handleClose = () => setOpen(false);
 
     const callWeatherAPI = async (arg: any) => {
-        await url.get<any>(`/forecast.json?key=${process.env.WEATHER_API_KEY}&q=${arg}&days=10&aqi=no&alerts=no`)
+        await url.get<any>(`/forecast.json?key=${process.env.REACT_APP_WEATHER_API_KEY}&q=${arg}&days=10&aqi=no&alerts=no`)
             .then(res => {
                 // Current Weather Info
                 setWeatherData({
