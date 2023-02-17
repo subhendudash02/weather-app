@@ -15,22 +15,11 @@ import "./styles/App.css";
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const styleModal = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-    backgroundColor: 'black',
-    color: 'white'
-};
-
 function App() {
     useEffect(() => {
+        //Fetch Live Weather from Geolocation automatically
+        getLiveWeather();
+
         const tempUnit:any = localStorage.getItem('tempUnit');
         const windSpeedUnit:any = localStorage.getItem('windSpeedUnit');
         if (!tempUnit) {
@@ -130,7 +119,7 @@ function App() {
                 onClose={handleClose}
                 aria-labelledby="modal-title"
                 aria-describedby="modal-description">
-            <Box sx={styleModal}>
+            <Box className="modalBox">
                 <h1>Settings</h1>
                 <form onSubmit={setPreferences}>
                     <label htmlFor="temperature">Temperature Unit: </label>
@@ -155,7 +144,6 @@ function App() {
 
         <form onSubmit={getWeather}>
             <input type="text" name="city" placeholder="Enter a city" ref={getData} />
-            <input type="button" value="Fetch from my current location" onClick={getLiveWeather} />
         </form>
         
         {weather.name ? <p className="weather-data name">{weather.name}</p> : null}

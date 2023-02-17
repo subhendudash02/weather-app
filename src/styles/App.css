@@ -84,6 +84,20 @@ select {
     flex-wrap: 'wrap';
 }
 
+.modalBox {
+    position: 'absolute';
+    padding: 3%;
+    top: '50%';
+    left: '50%';
+    transform: translateY(20%);
+    width: 60%;
+    margin: 0 auto;
+    border: '2px solid #000';
+    box-shadow: 24;
+    background-color: black;
+    color: white;
+}
+
 @media screen and (max-width: 768px) {
     input[type=text] {
         width: 80%;
@@ -96,5 +110,11 @@ select {
 
     .forecast-box {
         min-width: 50%;
+    }
+
+    .modalBox {
+        padding: 2%;
+        transform: translateY(100%);
+        width: 80%;
     }
 }
