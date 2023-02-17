@@ -24,7 +24,7 @@ npm start
 
 # Tech Stack 🛠
 
-1. React and TypeScript
+1. React and TypeScript with interfaces
 2. Vanilla CSS
 3. WeatherAPI
 
